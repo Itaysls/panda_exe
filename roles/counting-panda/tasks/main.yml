@@ -1,0 +1,31 @@
+---
+
+- name: install packages
+  apt: name={{item}} state=latest update_cache=yes
+  with_items:
+  - nodejs
+  - supervisor
+  - npm
+
+- name: copy app files to the server
+  copy: src=../files/counting-panda dest=/tmp/ owner=root group=root mode=0644
+
+- name: npm install
+  npm:  name={{item}} path=/tmp/counting-panda state=latest
+  with_items:
+  - http
+  - httpdispatcher
+  
+- name: set supervisor program settings
+  copy: src=../files/counting-panda.conf dest=/etc/supervisor/conf.d/counting-panda.conf owner=root group=root mode=0644
+
+- name: restart supervisor service
+  service:
+    name: supervisor
+    state: restarted
+
+- name: start the counting-panda program
+  supervisorctl:
+    name: counting-panda
+    state: started
+

@@ -1,0 +1,8 @@
+---
+
+- name: counting-panda and static-panda service
+  hosts: base
+  sudo: yes
+  roles:
+    - { role: static-panda, tags: static-panda }   
+    - { role: counting-panda, tags: counting-panda }

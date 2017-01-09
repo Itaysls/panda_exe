@@ -1,0 +1,30 @@
+---  
+- name: install packages
+  apt: name={{item}} state=latest update_cache=yes
+  with_items:
+  - nodejs
+  - supervisor
+  - npm
+
+- name: copy the app files to the server
+  copy: src=../files/static-panda dest=/tmp/ owner=root group=root mode=0644
+ 
+- name: npm install 
+  npm:  name={{item}} path=/tmp/static-panda state=latest
+  with_items: 
+  - express
+  - serve-static
+
+- name: set supervisor program settings
+  copy: src=../files/static-panda.conf dest=/etc/supervisor/conf.d/static-panda.conf owner=root group=root mode=0644
+
+- name: restart supervisor service
+  service: 
+    name: supervisor
+    state: restarted
+
+- name: start the static-panda program
+  supervisorctl: 
+     name: static-panda
+     state: started
+     
